@@ -1,6 +1,7 @@
 package it.gniado.empik.controller;
 
 import it.gniado.empik.exception.GithubException;
+import it.gniado.empik.model.RestError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,6 +20,6 @@ public class GithubExceptionResolver extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handle(GithubException ex, HttpServletRequest servletRequest) {
         LOGGER.log(Level.SEVERE, ex.getMessage());
         LOGGER.log(Level.SEVERE, "Status code: " + ex.getStatus());
-        return ResponseEntity.badRequest().body("Something went wrong when approaching Github API. Status code from Github: " + ex.getStatus().value());
+        return ResponseEntity.badRequest().body(new RestError(ex.getStatus(), ex.getMessage()));
     }
 }

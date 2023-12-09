@@ -8,31 +8,30 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
 public class GithubService {
 
-    @NonNull private final RestTemplate restTemplate;
+    @NonNull private final WebClient webClient;
 
     @Value(value = "${github.uri}")
     private String githubUri;
 
     public GithubUser getUser(String login) {
-        var uri = prepareUri(login);
         try {
-            return restTemplate.getForObject(uri, GithubUser.class);
-        } catch (HttpClientErrorException ex){
+
+            GithubUser user = webClient.get().uri(githubUri, login)
+                    .retrieve().bodyToMono(GithubUser.class).block();
+
+            return user;
+        } catch (WebClientResponseException ex){
             if (ex.getStatusCode().equals(HttpStatus.NOT_FOUND)){
                 throw new UserNotFoundException("User " + login + " not found!");
             }
             throw new GithubException("Something went wrong when approaching GithubAPI.", ex.getStatusCode());
         }
-    }
-
-    private String prepareUri(String login){
-        return String.format(githubUri, login);
     }
 }
