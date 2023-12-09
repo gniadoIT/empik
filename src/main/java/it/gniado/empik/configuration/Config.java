@@ -12,7 +12,7 @@ public class Config {
 
     @Value(value = "${github.header.auth.value}")
     private String githubHeaderAuthValue;
-    @Value(value = "${github.header.version.name}")
+    @Value(value = "${github.header.version.key}")
     private String githubHeaderVersionName;
     @Value(value = "${github.header.version.value}")
     private String githubHeaderVersionValue;
